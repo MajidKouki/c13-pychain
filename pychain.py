@@ -1,15 +1,12 @@
-# PyChain Ledger
-################################################################################
-################################################################################
 # Initial imports
-import streamlit as st
 from dataclasses import dataclass
 from typing import Any, List
 import datetime as datetime
+import streamlit as st
 import pandas as pd
 import hashlib
 
-################################################################################
+
 # Create a Record Data Class
 @dataclass
 class Record:
@@ -17,10 +14,8 @@ class Record:
     receiver: str
     amount: float
 
-################################################################################
-# Step 2:
-# Modify the Existing Block Data Class to Store Record Data
 
+# Create a Block Data Class for storing user data
 @dataclass
 class Block:
     record: Record
@@ -29,6 +24,7 @@ class Block:
     timestamp: str = datetime.datetime.utcnow().strftime("%H:%M:%S")
     nonce: int = 0
 
+    # Hash the Block data and return the hash
     def hash_block(self):
         sha = hashlib.sha256()
 
@@ -50,6 +46,7 @@ class Block:
         return sha.hexdigest()
 
 
+# Create PyChain Data Class 
 @dataclass
 class PyChain:
     chain: List[Block]
@@ -87,21 +84,18 @@ class PyChain:
         print("Blockchain is Valid")
         return True
 
-################################################################################
-# Streamlit Code
 
-# Adds the cache decorator for Streamlit
-
-
+# Add cache decorator for Streamlit and define setup function to initialize the blockchain
 @st.cache(allow_output_mutation=True)
 def setup():
     print("Initializing Chain")
     return PyChain([Block("Genesis", 0)])
 
-
+# Use markdown to decorate app
 st.markdown("# PyChain")
 st.markdown("## Store a Transaction Record in the PyChain")
 
+# Run the setup function and save it as pychain
 pychain = setup()
 
 ################################################################################
@@ -119,26 +113,21 @@ pychain = setup()
 
 
 
-# @TODO:
-# Add an input area where you can get a value for `sender` from the user.
+# Intake sender data from receiver
 sender = st.text_input("Sender")
 
-# @TODO:
-# Add an input area where you can get a value for `receiver` from the user.
+# Intake receiver data from user
 receiver = st.text_input("Receiver")
 
-# @TODO:
-# Add an input area where you can get a value for `amount` from the user.
+# Intake amount data from user
 amount = st.text_input("Amount")
+
 
 if st.button("Add Block"):
     prev_block = pychain.chain[-1]
     prev_block_hash = prev_block.hash_block()
 
-    # @TODO
-    # Update `new_block` so that `Block` consists of an attribute named `record`
-    # which is set equal to a `Record` that contains the `sender`, `receiver`,
-    # and `amount` values
+
     new_block = Block(
         record=Record,
         creator_id=42,
@@ -149,23 +138,26 @@ if st.button("Add Block"):
     st.balloons()
 
 ################################################################################
-# Streamlit Code (continues)
 
+# Use markdown to decorate app
 st.markdown("## The PyChain Ledger")
 
+# Create a dataframe using pychain data and display it
 pychain_df = pd.DataFrame(pychain.chain).astype(str)
 st.write(pychain_df)
 
+# Create difficulty slider for sidebar
 difficulty = st.sidebar.slider("Block Difficulty", 1, 5, 2)
 pychain.difficulty = difficulty
 
+# Create block inspector for sidebar and display the selected block
 st.sidebar.write("# Block Inspector")
 selected_block = st.sidebar.selectbox(
     "Which block would you like to see?", pychain.chain
 )
-
 st.sidebar.write(selected_block)
 
+# Add a button to display whether or not the chain is valid
 if st.button("Validate Chain"):
     st.write(pychain.is_valid())
 
