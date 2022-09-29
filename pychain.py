@@ -15,7 +15,7 @@ class Record:
     amount: float
 
 
-# Create a Block Data Class for storing user data
+# Create a Block Data Class for storing user data and hash it
 @dataclass
 class Block:
     record: Record
@@ -24,7 +24,6 @@ class Block:
     timestamp: str = datetime.datetime.utcnow().strftime("%H:%M:%S")
     nonce: int = 0
 
-    # Hash the Block data and return the hash
     def hash_block(self):
         sha = hashlib.sha256()
 
@@ -46,7 +45,7 @@ class Block:
         return sha.hexdigest()
 
 
-# Create PyChain Data Class 
+# Create PyChain Data Class to help with proof of work, adding blocks, and validation
 @dataclass
 class PyChain:
     chain: List[Block]
@@ -98,20 +97,6 @@ st.markdown("## Store a Transaction Record in the PyChain")
 # Run the setup function and save it as pychain
 pychain = setup()
 
-################################################################################
-# Step 3:
-# Add Relevant User Inputs to the Streamlit Interface
-
-# Code additional input areas for the user interface of your Streamlit
-# application. Create these input areas to capture the sender, receiver, and
-# amount for each transaction that you’ll store in the `Block` record.
-# To do so, complete the following steps:
-
-# 3. Add an input area where you can get a value for `receiver` from the user.
-# 4. Add an input area where you can get a value for `amount` from the user.
-# 5. As part of the Add Block button functionality, update `new_block` so that `Block` consists of an attribute named `record`, which is set equal to a `Record` that contains the `sender`, `receiver`, and `amount` values. The updated `Block`should also include the attributes for `creator_id` and `prev_hash`.
-
-
 
 # Intake sender data from receiver
 sender = st.text_input("Sender")
@@ -123,21 +108,20 @@ receiver = st.text_input("Receiver")
 amount = st.text_input("Amount")
 
 
+# Add a button to create new blocks using record data, creator_id data and the previous block's hash
 if st.button("Add Block"):
     prev_block = pychain.chain[-1]
     prev_block_hash = prev_block.hash_block()
-
-
     new_block = Block(
         record=Record,
         creator_id=42,
         prev_hash=prev_block_hash
     )
 
+    # Add the new block to the chain and celebrate with soem balloons
     pychain.add_block(new_block)
     st.balloons()
 
-################################################################################
 
 # Use markdown to decorate app
 st.markdown("## The PyChain Ledger")
@@ -155,36 +139,9 @@ st.sidebar.write("# Block Inspector")
 selected_block = st.sidebar.selectbox(
     "Which block would you like to see?", pychain.chain
 )
+
 st.sidebar.write(selected_block)
 
 # Add a button to display whether or not the chain is valid
 if st.button("Validate Chain"):
     st.write(pychain.is_valid())
-
-################################################################################
-# Step 4:
-# Test the PyChain Ledger by Storing Records
-
-# Test your complete `PyChain` ledger and user interface by running your
-# Streamlit application and storing some mined blocks in your `PyChain` ledger.
-# Then test the blockchain validation process by using your `PyChain` ledger.
-# To do so, complete the following steps:
-
-# 1. In the terminal, navigate to the project folder where you've coded the
-#  Challenge.
-
-# 2. In the terminal, run the Streamlit application by
-# using `streamlit run pychain.py`.
-
-# 3. Enter values for the sender, receiver, and amount, and then click the "Add
-# Block" button. Do this several times to store several blocks in the ledger.
-
-# 4. Verify the block contents and hashes in the Streamlit drop-down menu.
-# Take a screenshot of the Streamlit application page, which should detail a
-# blockchain that consists of multiple blocks. Include the screenshot in the
-# `README.md` file for your Challenge repository.
-
-# 5. Test the blockchain validation process by using the web interface.
-# Take a screenshot of the Streamlit application page, which should indicate
-# the validity of the blockchain. Include the screenshot in the `README.md`
-# file for your Challenge repository.
